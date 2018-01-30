@@ -448,16 +448,15 @@ function runsetup() {
     res=0
     while [ "$res" != "$instance_count" ] ;
     do
-        echo "Checkpoint 1"
         # Update progress bar
         progressBar $instance_count $res
         # Count how many out files we have for the copy (if the file exists the copy completed)
         # Note. We send stderr to dev/null in the ls cmd below to prevent file not found errors filling the screen
         # and the sed command here trims whitespace
         res=$(ls -l $project_home/$DATETIME*scpverify.out 2>/dev/null | wc -l | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
+        echo "\$res = $res \$instance_count = $instance_count"
         sleep 1
     done
-    echo "Checkpoint 2"
     progressBar $instance_count $res true
     echo
     echo
