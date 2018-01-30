@@ -432,6 +432,7 @@ function runsetup() {
   	echo "copying verify.sh to $instance_count server(s)..."
 
     for host in ${hosts[@]} ; do
+      echo "Attempting SCP to $host"
       (scp -q -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no \
                     -i "$PEM_PATH/$PEM_FILE" \
                     -P $REMOTE_PORT \
@@ -439,12 +440,15 @@ function runsetup() {
                     $LOCAL_HOME/jmeter-ec2.properties \
                     $USER@$host:$REMOTE_HOME \
                     && echo "done" > $project_home/$DATETIME-$host-scpverify.out) &
+      echo "$host done"
     done
+    echo "SCP loop done"
 
     # check to see if the scp call is complete (could just use the wait command here...)
     res=0
     while [ "$res" != "$instance_count" ] ;
     do
+        echo "Checkpoint 1"
         # Update progress bar
         progressBar $instance_count $res
         # Count how many out files we have for the copy (if the file exists the copy completed)
@@ -453,6 +457,7 @@ function runsetup() {
         res=$(ls -l $project_home/$DATETIME*scpverify.out 2>/dev/null | wc -l | sed -e 's/^[[:space:]]*//' -e 's/[[:space:]]*$//')
         sleep 1
     done
+    echo "Checkpoint 2"
     progressBar $instance_count $res true
     echo
     echo
